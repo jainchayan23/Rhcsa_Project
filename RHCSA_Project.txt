@@ -1,0 +1,128 @@
+.bashrc command 
+
+if [[ $- == *i* ]] && [ -z "$RHSCA_TOOLKIT_DONE" ]; then
+    export RHSCA_TOOLKIT_DONE=1
+    read -t 5 -p "Press S within 5 sec to skip RHCSA Toolkit: " key
+    if [[ "$key" != "S" && "$key" != "s" ]]; then
+        /usr/local/bin/rhcsa
+    else
+        echo "Toolkit skipped."
+    fi
+fi
+
+
+
+rhcsa script command
+
+
+#!/bin/bash
+
+# RHCSA Admin Toolkit Script
+while true; do
+        echo
+        toilet -F gay -F border -f big -w 400 "WELCOME TO TOOLKIT"
+    echo ""
+    echo "=========== RHCSA Admin Toolkit ==========="
+    echo "1. Create backup"
+    echo "2. Create file"
+    echo "3. Create directory"
+    echo "4. Display file content"
+    echo "5. Change file/directory permissions"
+    echo "6. Add a new user"
+    echo "7. Create group and add user to it"
+    echo "8. Archive and compress directory"
+    echo "9. Schedule a cron job"
+    echo "10. Delete file or directory"
+    echo "11. Mount a file system"
+    echo "12. Check disk usage"
+    echo "0. Exit"
+    echo "==========================================="
+    read -p "Enter your choice: " choice
+
+    case $choice in
+        1)
+            read -p "Enter file/directory path to backup: " path
+            read -p "Enter name for the backup file (e.g., backup.tar.gz): " backup_name
+            tar -czf "$backup_name" "$path" && echo "Backup created: $backup_name"
+            ;;
+        2)
+            read -p "Enter name for the new file: " filename
+            touch "$filename" && echo "File '$filename' created."
+            read -p "Do you want to write content to it? (y/n): " write_choice
+            if [[ $write_choice == "y" ]]; then
+                vi "$filename"
+            fi
+            ;;
+        3)
+            read -p "Enter name for the new directory: " dirname
+            mkdir -p "$dirname" && echo "Directory '$dirname' created."
+            ;;
+        4)
+            read -p "Enter filename to display: " file_to_view
+            if [[ -f $file_to_view ]]; then
+                less "$file_to_view"
+            else
+                echo "File does not exist."
+            fi
+	    ;;
+       5)
+            read -p "Enter file/directory path: " target
+            read -p "Enter permission (e.g., 755): " perm
+            chmod "$perm" "$target" && echo "Permissions updated."
+            ;;
+        6)
+            read -p "Enter username to add: " username
+            useradd "$username" && echo "User '$username' added."
+            ;;
+        7)
+            read -p "Enter group name: " groupname
+            read -p "Enter username to add to group: " uname
+            groupadd "$groupname"
+            usermod -aG "$groupname" "$uname"
+            echo "Group '$groupname' created and user '$uname' added."
+            ;;
+        8)
+            read -p "Enter directory to archive: " dir_to_archive
+            read -p "Enter archive name (e.g., archive.tar.gz): " archive_name
+            tar -czf "$archive_name" "$dir_to_archive" && echo "Archive created: $archive_name"
+            ;;
+        9)
+            read -p "Enter cron schedule (e.g., '* * * * *'): " cron_time
+            read -p "Enter command to run: " cron_command
+            (crontab -l 2>/dev/null; echo "$cron_time $cron_command") | crontab -
+            echo "Cron job scheduled."
+            ;;
+        10)
+            read -p "Enter path to file/directory to delete: " delete_path
+            read -p "Are you sure you want to delete '$delete_path'? (y/n): " confirm
+            if [[ $confirm == "y" ]]; then
+                rm -r "$delete_path" && echo "'$delete_path' deleted."
+            else
+                echo "Operation cancelled."
+            fi
+            ;;
+        11)
+            read -p "Enter device (e.g., /dev/sdb1): " device
+            read -p "Enter mount point (e.g., /mnt/mydisk): " mount_point
+            mkdir -p "$mount_point"
+            mount "$device" "$mount_point" && echo "$device mounted to $mount_point"
+            ;;
+
+       12)
+            df -h
+            echo ""
+            du -sh *
+            ;;
+        0)
+            echo
+            toilet -F gay -f standard -w 400 "Exiting... Goodbye !!"
+            exit 0
+            ;;
+        *)
+            echo "Invalid choice. Please enter a number from 0 to 12."
+            ;;
+    esac
+done
+
+
+
